@@ -5,7 +5,12 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 find_package(MiniSat 2.2 REQUIRED)
 
-add_executable(sudoku-cli main.cpp)
+add_executable(sudoku-cli
+    main.cpp
+    solver.cpp
+    # Headers for IDEs
+    solver.hpp
+)
 target_link_libraries(sudoku-cli MiniSat::libminisat)
 
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT sudoku-cli)
