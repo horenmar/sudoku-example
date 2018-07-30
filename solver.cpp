@@ -39,7 +39,9 @@ void log_clause(Minisat::Lit lhs, Minisat::Lit rhs) {
 } //end anonymous namespace
 
 void Solver::init_variables() {
-    std::clog << "c (row, column, value) = variable\n";
+    if (m_write_dimacs) {
+        std::clog << "c (row, column, value) = variable\n";
+    }
     for (int r = 0; r < rows; ++r) {
         for (int c = 0; c < columns; ++c) {
             for (int v = 0; v < values; ++v) {
