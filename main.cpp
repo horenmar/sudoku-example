@@ -1,6 +1,5 @@
 #include "solver.hpp"
 
-#include <cassert>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -26,30 +25,31 @@ namespace {
  *  .........
  *
  */
-std::vector<std::vector<int>> read_board(std::istream& in) {
-    std::vector<std::vector<int>> board(9, std::vector<int>(9));
-    int lines = 0;
+board read_board(std::istream& in) {
+    board parsed(9, std::vector<int>(9));
+    int lines = 1;
     std::string line;
-    while (std::getline(in, line) && lines < 9) {
+    while (std::getline(in, line) && lines <= 9) {
         if (line.size() != 9) {
-            std::clog << "Line #" << lines + 1 << " has invalid size.\n";
-            throw 1;
+            throw std::runtime_error("Line #" + std::to_string(lines) + " has invalid size.");
         }
         for (size_t ci = 0; ci < line.size(); ++ci) {
             char c = line[ci];
             if (c == '.') {
                 continue;
             } else if (c >= '0' && c <= '9') {
-                board[lines][ci] = c - '0';
+                parsed[lines - 1][ci] = c - '0';
             } else {
-                std::clog << "Invalid character '" << c << "' in line #" << lines + 1 << '\n';
-                throw 2;
+                throw std::runtime_error("Line #" + std::to_string(lines) + "contains invalid character: '" + c + "'");
             }
         }
         ++lines;
     }
+    if (lines != 10) {
+        throw std::runtime_error("The input is missing a line");
+    }
 
-    return board;
+    return parsed;
 }
 
 
@@ -59,8 +59,26 @@ std::vector<std::vector<int>> read_board(std::istream& in) {
 
 int main() {
     try {
-        //auto board = read_board(std::cin);
-        Solver s(true);
-    } catch(int) {
+        auto board = read_board(std::cin);
+        Solver s(false);
+        if (!s.apply_board(board)) {
+            std::clog << "There is a contradiction in the parsed!\n";
+            return 2;
+        }
+        if (s.solve()) {
+            std::clog << "Solution found:\n";
+            auto solution = s.get_solution();
+            for (auto const& row : solution) {
+                for (auto const& col : row) {
+                    std::cout << col << ' ';
+                }
+                std::cout << '\n';
+            }
+        } else {
+            std::clog << "Solving the provided parsed is not possible\n";
+        }
+    } catch(std::exception const& ex) {
+        std::clog << "Failed parsing because: " << ex.what() << std::endl;
+        return 1;
     }
 }
