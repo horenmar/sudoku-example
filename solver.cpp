@@ -16,6 +16,24 @@ Minisat::Var toVar(int row, int column, int value) {
     return row * columns * values + column * values + value;
 }
 
+bool is_valid(board const& b) {
+    if (b.size() != rows) {
+        return false;
+    }
+    for (int row = 0; row < rows; ++row) {
+        if (b[row].size() != columns) {
+            return false;
+        }
+        for (int col = 0; col < columns; ++col) {
+            auto value = b[row][col];
+            if (value < 0 || value > 9) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 void log_var(Minisat::Lit lit) {
     if (sign(lit)) {
         std::clog << '-';
@@ -130,3 +148,38 @@ Solver::Solver(bool write_dimacs):
     non_duplicated_values();
 }
 
+bool Solver::apply_board(board const& b) {
+    assert(is_valid(b) && "Provided board is not valid!");
+    bool ret = true;
+    for (int row = 0; row < rows; ++row) {
+        for (int col = 0; col < columns; ++col) {
+            auto value = b[row][col];
+            if (value != 0) {
+                ret &= solver.addClause(Minisat::mkLit(toVar(row, col, value - 1)));
+            }
+        }
+    }
+    return ret;
+}
+
+bool Solver::solve() {
+    return solver.solve();
+}
+
+board Solver::get_solution() const {
+    board b(rows, std::vector<int>(columns));
+    for (int row = 0; row < rows; ++row) {
+        for (int col = 0; col < columns; ++col) {
+            int found = 0;
+            for (int val = 0; val < values; ++val) {
+                if (solver.modelValue(toVar(row, col, val)).isTrue()) {
+                    ++found;
+                    b[row][col] = val + 1;
+                }
+            }
+            assert(found == 1 && "The SAT solver assigned one position more than one value");
+            (void)found;
+        }
+    }
+    return b;
+}
