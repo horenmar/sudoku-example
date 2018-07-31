@@ -3,7 +3,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-
+#include <chrono>
 
 namespace {
 
@@ -60,13 +60,16 @@ board read_board(std::istream& in) {
 int main() {
     try {
         auto board = read_board(std::cin);
-        Solver s(false);
+        auto t1 = std::chrono::high_resolution_clock::now();
+        Solver s;
         if (!s.apply_board(board)) {
             std::clog << "There is a contradiction in the parsed!\n";
             return 2;
         }
         if (s.solve()) {
-            std::clog << "Solution found:\n";
+            std::chrono::duration<double, std::milli> time_taken = std::chrono::high_resolution_clock::now() - t1;
+            std::clog << "Solution found in " << time_taken.count() << " ms\n";
+
             auto solution = s.get_solution();
             for (auto const& row : solution) {
                 for (auto const& col : row) {
