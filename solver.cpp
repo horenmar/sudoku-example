@@ -50,7 +50,7 @@ void log_clause(Minisat::vec<Minisat::Lit> const& clause) {
 
 void log_clause(Minisat::Lit lhs, Minisat::Lit rhs) {
     log_var(lhs); log_var(rhs);
-    std::clog << "'0\n";
+    std::clog << "0\n";
 }
 
 
