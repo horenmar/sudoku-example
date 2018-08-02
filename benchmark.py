@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
 
 import subprocess
-import os
 import argparse
 from pathlib import Path
 import re
-from statistics import stdev, mean
+from statistics import stdev, mean, median_high
+from collections import namedtuple
+from math import floor, ceil
+
+def percentile_bound(data, p):
+    c = ceil((len(data) - 1) * (p / 100.))
+    return data[c]
 
 time_parser = re.compile(r'Solution found in (\d+.\d+) ms')
 
@@ -29,8 +34,6 @@ def unfurl_line(line):
     assert len(line) == 9 * 9
     return '\n'.join(line[i:i+9] for i in range(0, 81, 9))
 
-
-
 def run_with_input(line):
     results  = []
     for i in range(num_runs):
@@ -43,10 +46,22 @@ def run_with_input(line):
         
     return mean(results), stdev(results)
 
+Record = namedtuple('Record', ['mean', 'stddev', 'index'])
+data = []
+
 with open(args.input, 'r') as input_file, open('table.md', 'w') as out_file:
     out_file.write('| Problem | Time taken mean (ms) | Time taken stdev (ms) |\n')
     out_file.write('|---------|----------------------|-----------------------|\n')
     for idx, line in enumerate(input_file):
         line = line.rstrip()
-        out_file.write('| {} | {} | {} |\n'.format(idx, *run_with_input(line)))
-        print('Problem: {}, mean: {}, stdev: {}'.format(idx, *run_with_input(line)))
+        result = run_with_input(line)
+        out_file.write('| {} | {} | {} |\n'.format(idx, *result))
+        print('Problem: {}, mean: {}, stdev: {}'.format(idx, *result))
+        data.append( Record(*result, idx) )
+
+data = sorted(data, key=lambda x: x.mean)
+print('Least runtime: {0.mean} +- {0.stddev}'.format(data[0]))
+print('Median: {0.mean} +- {0.stddev}'.format(median_high(data)))
+print('95 percentile: {0.mean} +- {0.stddev}'.format(percentile_bound(data, 95)))
+print('99 percentile: {0.mean} +- {0.stddev}'.format(percentile_bound(data, 99)))
+print('Most runtime: {0.mean} +- {0.stddev}'.format(data[-1]))
