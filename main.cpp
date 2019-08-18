@@ -63,7 +63,7 @@ int main() {
         auto t1 = std::chrono::high_resolution_clock::now();
         Solver s;
         if (!s.apply_board(board)) {
-            std::clog << "There is a contradiction in the parsed!\n";
+            std::clog << "There is a contradiction in the input!\n";
             return 2;
         }
         if (s.solve()) {
@@ -78,7 +78,7 @@ int main() {
                 std::cout << '\n';
             }
         } else {
-            std::clog << "Solving the provided parsed is not possible\n";
+            std::clog << "Solving the provided input is not possible\n";
         }
     } catch(std::exception const& ex) {
         std::clog << "Failed parsing because: " << ex.what() << std::endl;
