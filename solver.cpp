@@ -125,12 +125,12 @@ void Solver::non_duplicated_values() {
         }
     }
     // Now forbid sharing in the 3x3 boxes
-    for (int r = 0; r < 9; r += 3) {
-        for (int c = 0; c < 9; c += 3) {
-            for (int value = 0; value < values; ++value) {
+    for (int value = 0; value < values; ++value) {
+        for (int r : {0, 3, 6}) {
+            for (int c : {0, 3, 6}) {
                 Minisat::vec<Minisat::Lit> literals;
-                for (int rr = 0; rr < 3; ++rr) {
-                    for (int cc = 0; cc < 3; ++cc) {
+                for (int rr : {0, 1, 2}) {
+                    for (int cc : {0, 1, 2}) {
                         literals.push(Minisat::mkLit(toVar(r + rr, c + cc, value)));
                     }
                 }
