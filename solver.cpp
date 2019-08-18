@@ -111,7 +111,7 @@ void Solver::non_duplicated_values() {
             for (int column = 0; column < columns; ++column) {
                 literals.push(Minisat::mkLit(toVar(row, column, value)));
             }
-            exactly_one_true(literals);
+            solver.addClause(literals);
         }
     }
     // In each column, for each value, forbid two rows sharing that value
@@ -121,7 +121,7 @@ void Solver::non_duplicated_values() {
             for (int row = 0; row < rows; ++row) {
                 literals.push(Minisat::mkLit(toVar(row, column, value)));
             }
-            exactly_one_true(literals);
+            solver.addClause(literals);
         }
     }
     // Now forbid sharing in the 3x3 boxes
@@ -134,7 +134,7 @@ void Solver::non_duplicated_values() {
                         literals.push(Minisat::mkLit(toVar(r + rr, c + cc, value)));
                     }
                 }
-                exactly_one_true(literals);
+                solver.addClause(literals);
             }
         }
     }
