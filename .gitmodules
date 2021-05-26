@@ -1,0 +1,3 @@
+[submodule "deps/minisat"]
+	path = deps/minisat
+	url = https://github.com/master-keying/minisat.git
